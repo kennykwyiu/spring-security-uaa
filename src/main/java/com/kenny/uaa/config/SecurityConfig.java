@@ -7,17 +7,24 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+////        http.authorizeRequests(
+////                req -> req.mvcMatchers("/api/greeting")
+////                .hasRole("ADMIN")
+////        );
+////
+//        http.formLogin(Customizer.withDefaults())
+//                .authorizeRequests(
+//                        req -> req.mvcMatchers("/api/greeting")
+//                                .authenticated()
+//                );
+//    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests(
-//                req -> req.mvcMatchers("/api/greeting")
-//                .hasRole("ADMIN")
-//        );
-
-        http.formLogin(Customizer.withDefaults())
-                .authorizeRequests(
-                        req -> req.mvcMatchers("/api/greeting")
-                                .authenticated()
-                );
+        http.csrf(csfr -> csfr.disable())
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/"));
     }
 }
