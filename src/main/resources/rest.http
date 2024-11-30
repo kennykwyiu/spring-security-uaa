@@ -7,4 +7,9 @@ Authorization: Basic user 283d0e40-894d-4b5c-b406-e6644ad7f1d0
 ###
 POST /api/greeting?name=kenny HTTP/1.1
 Host: localhost:8080
-Authorization: Basic user a22f87b8-e811-46fc-afbc-3647c72fe8bd
+Authorization: Basic user a0e9e1a0-9b6c-4d8f-adf7-986df17c7d76
+
+###
+PUT /api/greeting/kenny HTTP/1.1
+Host: localhost:8080
+Authorization: Basic user a0e9e1a0-9b6c-4d8f-adf7-986df17c7d76
