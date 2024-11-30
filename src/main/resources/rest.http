@@ -1,13 +1,19 @@
+@password=12345678
+
 ### Send Request
 
 GET /api/greeting HTTP/1.1
 Host: localhost:8080
-Authorization: Basic user 283d0e40-894d-4b5c-b406-e6644ad7f1d0
+
+###
+GET /api/greeting HTTP/1.1
+Host: localhost:8080
+Authorization: Basic user {{password}}
 
 ###
 POST /api/greeting?name=kenny HTTP/1.1
 Host: localhost:8080
-Authorization: Basic user 8ea039cd-63ef-49b9-8e01-d3a9b38d3f8d
+Authorization: Basic user {{password}}
 Content-Type: application/json
 
 {
@@ -18,4 +24,4 @@ Content-Type: application/json
 ###
 PUT /api/greeting/kenny HTTP/1.1
 Host: localhost:8080
-Authorization: Basic user a0e9e1a0-9b6c-4d8f-adf7-986df17c7d76
+Authorization: Basic user {{password}}
