@@ -1,8 +1,6 @@
 package com.kenny.uaa.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -10,5 +8,10 @@ public class UserResource {
     @GetMapping("/greeting")
     public String greeting() {
         return "Hello World";
+    }
+
+    @PostMapping("/greeting")
+    public String makeGreeting(@RequestParam String name) {
+        return "Hello " + name;
     }
 }
