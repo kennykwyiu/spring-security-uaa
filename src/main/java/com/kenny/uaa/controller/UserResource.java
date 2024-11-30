@@ -14,4 +14,9 @@ public class UserResource {
     public String makeGreeting(@RequestParam String name) {
         return "Hello " + name;
     }
+
+    @PutMapping ("/greeting/{name}")
+    public String putGreeting(@PathVariable String name) {
+        return "Hello " + name;
+    }
 }
