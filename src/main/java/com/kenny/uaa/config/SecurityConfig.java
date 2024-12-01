@@ -28,11 +28,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests(req -> req.antMatchers("/api/**").authenticated())
-            .formLogin(form -> form.loginPage("/login"))
-            .httpBasic(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            ;
+//            .authorizeRequests(req -> req.antMatchers("/api/**").authenticated())
+                .authorizeRequests(req -> req
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .usernameParameter("username1")
+                        .defaultSuccessUrl("/")
+                        .successHandler(getJsonAuthenticationSuccessHandler())
+
+                        .permitAll())
+//                .httpBasic(Customizer.withDefaults())
+                .csrf(Customizer.withDefaults())
+                .logout(logout -> logout
+                        .logoutUrl("/perform_logout"))
+                .rememberMe(rememberMe -> rememberMe
+                        .tokenValiditySeconds(30 * 24 * 3600) // 30days
+                        .rememberMeCookieName("someKeyToRemember"))
+        ;
     }
 
 //    @Override
