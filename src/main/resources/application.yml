@@ -1,7 +1,7 @@
 logging:
   level:
     com:
-      imooc: DEBUG
+      kenny: DEBUG
     org:
       springframework:
         security: DEBUG
@@ -13,8 +13,22 @@ server:
     whitelabel:
       enabled: true
   port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
 
 spring:
+  application:
+    name: uaa
   messages:
-    basename: messages
+    basename: message
     encoding: UTF-8
+#  security:
+#    user:
+#      name: user
+#      password: 12345678
+#      roles: USER,ADMIN
+  mvc:
+    locale: UTF-8
+    locale-resolver: fixed
