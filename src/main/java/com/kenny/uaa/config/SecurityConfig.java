@@ -36,7 +36,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .usernameParameter("username1")
                         .defaultSuccessUrl("/")
                         .successHandler(getJsonAuthenticationSuccessHandler())
-
+                        .failureHandler((req, res, exp) -> {
+                            val objectMapper = new ObjectMapper();
+                            res.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            res.setCharacterEncoding("UTF-8");
+                            val errData = Map.of(
+                                    "title", "Authentication Failure!!!",
+                                    "details", exp.getMessage()
+                            );
+                            res.getWriter().println(objectMapper.writeValueAsString(errData));
+                        })
                         .permitAll())
 //                .httpBasic(Customizer.withDefaults())
                 .csrf(Customizer.withDefaults())
