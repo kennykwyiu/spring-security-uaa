@@ -48,10 +48,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ;
     }
 
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        super.configure(auth);
-//    }
+    private static AuthenticationSuccessHandler getJsonAuthenticationSuccessHandler() {
+        return (req, res, auth) -> {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            res.setStatus(HttpStatus.OK.value());
+            res.getWriter().println(objectMapper.writeValueAsString(auth));
+            log.debug("Authentication Successful!!!!!");
+        };
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication()
+                .withUser("user")
+                .password(passwordEncoder().encode("12345678"))
+                .roles("USER", "ADMIN");
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
