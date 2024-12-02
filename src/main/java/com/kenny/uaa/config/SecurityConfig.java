@@ -22,8 +22,10 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private final ObjectMapper objectMapper;
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
