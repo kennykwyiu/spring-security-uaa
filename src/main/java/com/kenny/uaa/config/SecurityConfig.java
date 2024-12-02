@@ -97,6 +97,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/public/**");
+        web.ignoring().mvcMatchers("/public/**", "/error")
+//                ;
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 }
