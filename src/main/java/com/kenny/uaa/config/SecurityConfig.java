@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ;
     }
 
-    private static AuthenticationFailureHandler getAuthenticationFailureHandler() {
+    private static AuthenticationFailureHandler getJsonLoginFailureHandler() {
         return (req, res, exp) -> {
             val objectMapper = new ObjectMapper();
             res.setStatus(HttpStatus.UNAUTHORIZED.value());
