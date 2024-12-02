@@ -25,3 +25,13 @@ Content-Type: application/json
 PUT /api/greeting/kenny HTTP/1.1
 Host: localhost:8080
 Authorization: Basic user {{password}}
+
+###
+POST /authorize/login
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "1234567"
+}
