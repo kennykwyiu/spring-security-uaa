@@ -1,6 +1,8 @@
 package com.kenny.uaa.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenny.uaa.security.filter.RestAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -13,11 +15,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Map;
 
@@ -46,21 +48,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
 //            .authorizeRequests(req -> req.antMatchers("/api/**").authenticated())
                 .authorizeRequests(req -> req
+                        .antMatchers("/authorize/**").permitAll()
+                        .antMatchers("/admin/**").hasRole("ADMIN")
+                        .antMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("username1")
-                        .defaultSuccessUrl("/")
-                        .successHandler(getJsonAuthenticationSuccessHandler())
-                        .failureHandler(getAuthenticationFailureHandler())
-                        .permitAll())
+                .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .usernameParameter("username1")
+//                        .defaultSuccessUrl("/")
+//                        .successHandler(getJsonAuthenticationSuccessHandler())
+//                        .failureHandler(getJsonLoginFailureHandler())
+//                        .permitAll())
 //                .httpBasic(Customizer.withDefaults())
                 .csrf(Customizer.withDefaults())
-                .logout(logout -> logout
-                        .logoutUrl("/perform_logout"))
-                .rememberMe(rememberMe -> rememberMe
-                        .tokenValiditySeconds(30 * 24 * 3600) // 30days
-                        .rememberMeCookieName("someKeyToRemember"))
+//                .logout(logout -> logout
+//                        .logoutUrl("/perform_logout"))
+//                .rememberMe(rememberMe -> rememberMe
+//                        .tokenValiditySeconds(30 * 24 * 3600) // 30days
+//                        .rememberMeCookieName("someKeyToRemember"))
         ;
     }
 
