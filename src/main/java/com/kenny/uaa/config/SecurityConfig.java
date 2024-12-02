@@ -61,7 +61,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                        .failureHandler(getJsonLoginFailureHandler())
 //                        .permitAll())
 //                .httpBasic(Customizer.withDefaults())
-                .csrf(Customizer.withDefaults())
+                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
+//                .csrf(Customizer.withDefaults())
 //                .logout(logout -> logout
 //                        .logoutUrl("/perform_logout"))
 //                .rememberMe(rememberMe -> rememberMe
