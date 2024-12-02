@@ -78,10 +78,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
     }
 
-    private RestAuthenticationFilter getRestAuthenticationFilter() {
+    private RestAuthenticationFilter getRestAuthenticationFilter() throws Exception {
         RestAuthenticationFilter filter = new RestAuthenticationFilter(objectMapper);
         filter.setAuthenticationSuccessHandler(getJsonAuthenticationSuccessHandler());
-        filter.setAuthenticationFailureHandler();
+        filter.setAuthenticationFailureHandler(getJsonLoginFailureHandler());
+        filter.setAuthenticationManager(authenticationManager());
+        filter.setFilterProcessesUrl("/authorize/login");
+        return filter;
     }
 
     private static AuthenticationSuccessHandler getJsonAuthenticationSuccessHandler() {
