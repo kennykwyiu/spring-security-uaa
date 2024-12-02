@@ -50,17 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .usernameParameter("username1")
                         .defaultSuccessUrl("/")
                         .successHandler(getJsonAuthenticationSuccessHandler())
-                        .failureHandler((req, res, exp) -> {
-                            val objectMapper = new ObjectMapper();
-                            res.setStatus(HttpStatus.UNAUTHORIZED.value());
-                            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            res.setCharacterEncoding("UTF-8");
-                            val errData = Map.of(
-                                    "title", "Authentication Failure!!!",
-                                    "details", exp.getMessage()
-                            );
-                            res.getWriter().println(objectMapper.writeValueAsString(errData));
-                        })
+                        .failureHandler(getAuthenticationFailureHandler())
                         .permitAll())
 //                .httpBasic(Customizer.withDefaults())
                 .csrf(Customizer.withDefaults())
@@ -70,6 +60,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .tokenValiditySeconds(30 * 24 * 3600) // 30days
                         .rememberMeCookieName("someKeyToRemember"))
         ;
+    }
+
+    private static AuthenticationFailureHandler getAuthenticationFailureHandler() {
+        return (req, res, exp) -> {
+            val objectMapper = new ObjectMapper();
+            res.setStatus(HttpStatus.UNAUTHORIZED.value());
+            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            res.setCharacterEncoding("UTF-8");
+            val errData = Map.of(
+                    "title", "Authentication Failure!!!",
+                    "details", exp.getMessage()
+            );
+            res.getWriter().println(objectMapper.writeValueAsString(errData));
+        };
+    }
+
+    private RestAuthenticationFilter getRestAuthenticationFilter() {
+        RestAuthenticationFilter filter = new RestAuthenticationFilter(objectMapper);
+        filter.setAuthenticationSuccessHandler(getJsonAuthenticationSuccessHandler());
+        filter.setAuthenticationFailureHandler();
     }
 
     private static AuthenticationSuccessHandler getJsonAuthenticationSuccessHandler() {
