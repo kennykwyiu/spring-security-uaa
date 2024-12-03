@@ -53,18 +53,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .usernameParameter("username1")
-//                        .defaultSuccessUrl("/")
-//                        .successHandler(getJsonAuthenticationSuccessHandler())
-//                        .failureHandler(getJsonLoginFailureHandler())
-//                        .permitAll())
-//                .httpBasic(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .usernameParameter("username1")
+                        .defaultSuccessUrl("/")
+                        .successHandler(getJsonAuthenticationSuccessHandler())
+                        .failureHandler(getJsonLoginFailureHandler())
+                        .permitAll())
+
+                .httpBasic(Customizer.withDefaults())
+
                 .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
 //                .csrf(Customizer.withDefaults())
-//                .logout(logout -> logout
-//                        .logoutUrl("/perform_logout"))
+                .logout(logout -> logout
+                        .logoutUrl("/perform_logout")
+                        .logoutSuccessHandler(getJsonLogoutSuccessHandler()))
 //                .rememberMe(rememberMe -> rememberMe
 //                        .tokenValiditySeconds(30 * 24 * 3600) // 30days
 //                        .rememberMeCookieName("someKeyToRemember"))
