@@ -1,11 +1,10 @@
 package com.kenny.uaa.domain.dto;
 
+import com.kenny.uaa.annotation.ValidEmail;
+import com.kenny.uaa.annotation.ValidPassword;
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 import java.io.Serializable;
 @Data
@@ -16,11 +15,11 @@ public class UserDto implements Serializable {
     private String username;
 
     @NotNull
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @ValidPassword
     private String password;
 
     @NotNull
-    @Size(min = 8, message = "Matching password must be at least 8 characters")
+    @ValidPassword
     private String matchingPassword;
 
     @NotNull
