@@ -1,22 +1,26 @@
 package com.kenny.uaa.validation;
 
 import com.kenny.uaa.annotation.ValidPassword;
+import lombok.RequiredArgsConstructor;
 import org.passay.*;
+import org.passay.spring.SpringMessageResolver;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
 
+    private final SpringMessageResolver springMessageResolver;
     @Override
     public void initialize(ValidPassword constraintAnnotation) {
-        ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
     @Override
-    public boolean isValid(String password, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(String password, ConstraintValidatorContext context) {
         PasswordValidator validator = new PasswordValidator(
+                springMessageResolver,
                 Arrays.asList(
                         // Length rule: 8 - 30 characters
                         new LengthRule(8, 30),
@@ -44,6 +48,9 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
         if (result.isValid()) {
             return true;
         }
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(String.join(",", validator.getMessages(result)))
+                .addConstraintViolation();
         return false;
     }
 }
