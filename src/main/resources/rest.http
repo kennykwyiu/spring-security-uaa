@@ -28,10 +28,28 @@ Authorization: Basic user {{password}}
 
 ###
 POST /authorize/login
-Host: localhost:8080
+Host: {{host}}
 Content-Type: application/json
 
 {
   "username": "user",
-  "password": "1234567"
+  "password": "12345678"
 }
+
+###
+POST {{host}}/authorize/register
+Content-Type: application/json
+
+{
+  "name": "有啲痛有啲痛",
+  "username": "kenken",
+  "password": "A1B2C3a4b5c6!78qwerty12345T!",
+  "matchingPassword": "12345678",
+  "email": "ken@email"
+}
+
+###
+GET {{host}}/api/principal HTTP/1.1
+Authorization: Basic user 12345678
+
+###
