@@ -7,27 +7,40 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 import java.util.Map;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Slf4j
 @RequiredArgsConstructor
 @EnableWebSecurity(debug = true)
+@Order(99)
+@Import(SecurityProblemSupport.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final ObjectMapper objectMapper;
+    private final SecurityProblemSupport securityProblemSupport;
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
@@ -46,6 +59,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .requestMatchers(req -> req.mvcMatchers("/authorize/**", "/admin/**", "/api/**"))
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .exceptionHandling(exp ->exp
+                        .authenticationEntryPoint(securityProblemSupport)
+                        .accessDeniedHandler(securityProblemSupport)
+                )
 //            .authorizeRequests(req -> req.antMatchers("/api/**").authenticated())
                 .authorizeRequests(req -> req
                         .antMatchers("/authorize/**").permitAll()
@@ -53,24 +72,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("username1")
-                        .defaultSuccessUrl("/")
-                        .successHandler(getJsonAuthenticationSuccessHandler())
-                        .failureHandler(getJsonLoginFailureHandler())
-                        .permitAll())
+//                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
+                .csrf(csrf -> csrf.disable())
 
-                .httpBasic(Customizer.withDefaults())
-
-                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
+//                .httpBasic(Customizer.withDefaults())
 //                .csrf(Customizer.withDefaults())
-                .logout(logout -> logout
-                        .logoutUrl("/perform_logout")
-                        .logoutSuccessHandler(getJsonLogoutSuccessHandler()))
-//                .rememberMe(rememberMe -> rememberMe
-//                        .tokenValiditySeconds(30 * 24 * 3600) // 30days
-//                        .rememberMeCookieName("someKeyToRemember"))
         ;
     }
 
@@ -107,6 +113,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
     }
 
+    private LogoutSuccessHandler getJsonLogoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            if (authentication != null && authentication.getDetails() != null) {
+                request.getSession().invalidate();
+            }
+            response.setStatus(HttpStatus.OK.value());
+            response.getWriter().println();
+            log.debug("Successfully logged out");
+        };
+    }
+
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
@@ -131,10 +149,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new DelegatingPasswordEncoder(idForDefault, encoderMap);
     }
 
+    @Bean
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/public/**", "/error")
-//                ;
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }
