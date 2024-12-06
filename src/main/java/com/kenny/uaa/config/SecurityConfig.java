@@ -111,13 +111,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("user")
-                .password(passwordEncoder().encode("12345678"))
-                .roles("USER", "ADMIN");
+//                .password(passwordEncoder().encode("12345678"))
+                .password("{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S")
+                .roles("USER", "ADMIN")
+                .and()
+                .withUser("kenny")
+//                .password(new MessageDigestPasswordEncoder("SHA-1").encode("abcd1234"))
+                .password("{SHA-1}{kHuRu6jV3+cBx9FDxGMln1bNI2y4DGo/BTXSxk1TD+o=}0dba8fb0fb9cf82a9e0c94f4063cf0def077b84d")
+                .roles("USER");;
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        String idForDefault = "bcrypt";
+        Map<String, PasswordEncoder> encoderMap = Map.of(
+                idForDefault, new BCryptPasswordEncoder(),
+                "SHA-1", new MessageDigestPasswordEncoder("SHA-1")
+        );
+        return new DelegatingPasswordEncoder(idForDefault, encoderMap);
     }
 
     @Override
