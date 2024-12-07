@@ -29,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
+import javax.sql.DataSource;
 import java.util.Map;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -41,6 +42,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final ObjectMapper objectMapper;
     private final SecurityProblemSupport securityProblemSupport;
+    private final DataSource dataSource;
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
@@ -75,9 +77,41 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
                 .csrf(csrf -> csrf.disable())
 
-//                .httpBasic(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults()) // allow auth header
 //                .csrf(Customizer.withDefaults())
         ;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .jdbcAuthentication()
+//                .withDefaultSchema() // delete after added h2
+                .dataSource(dataSource)
+
+//                .inMemoryAuthentication()
+                .passwordEncoder(passwordEncoder())
+                .usersByUsernameQuery("select username, password, enable from uaa_users where username = ?")
+                .authoritiesByUsernameQuery("select username, authority from uaa_authorities where username = ?")
+        ;
+//                .withUser("user")
+////                .password(passwordEncoder().encode("12345678"))
+//                .password("{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S")
+//                .roles("USER", "ADMIN")
+//                .and()
+//                .withUser("kenny")
+////                .password(new MessageDigestPasswordEncoder("SHA-1").encode("abcd1234"))
+//                .password("{SHA-1}{kHuRu6jV3+cBx9FDxGMln1bNI2y4DGo/BTXSxk1TD+o=}0dba8fb0fb9cf82a9e0c94f4063cf0def077b84d")
+//                .roles("USER");
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+                .ignoring()
+                .antMatchers("/h2-console/**", "/error")
+        ;
+//                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     private static AuthenticationFailureHandler getJsonLoginFailureHandler() {
@@ -122,21 +156,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             response.getWriter().println();
             log.debug("Successfully logged out");
         };
-    }
-
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user")
-//                .password(passwordEncoder().encode("12345678"))
-                .password("{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S")
-                .roles("USER", "ADMIN")
-                .and()
-                .withUser("kenny")
-//                .password(new MessageDigestPasswordEncoder("SHA-1").encode("abcd1234"))
-                .password("{SHA-1}{kHuRu6jV3+cBx9FDxGMln1bNI2y4DGo/BTXSxk1TD+o=}0dba8fb0fb9cf82a9e0c94f4063cf0def077b84d")
-                .roles("USER");;
     }
 
     @Bean
