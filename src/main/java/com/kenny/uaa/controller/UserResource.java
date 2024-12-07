@@ -37,6 +37,10 @@ public class UserResource {
     public Principal getPrincipal(Principal principal) {
         return principal;
     }
+//    public Authentication getPrincipal() {
+//        return SecurityContextHolder.getContext().getAuthentication();
+//    }
+
 
     @Data
     static class Profile {
