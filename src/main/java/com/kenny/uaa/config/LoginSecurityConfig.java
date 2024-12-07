@@ -32,7 +32,7 @@ public class LoginSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web
-                .ignoring().antMatchers("/public/**", "/error")
+                .ignoring().antMatchers("/public/**", "/error", "/h2-console/**")
                 ;
 //                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
