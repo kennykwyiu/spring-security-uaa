@@ -2,6 +2,7 @@ package com.kenny.uaa.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenny.uaa.security.filter.RestAuthenticationFilter;
+import com.kenny.uaa.security.userdetails.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -42,7 +43,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final ObjectMapper objectMapper;
     private final SecurityProblemSupport securityProblemSupport;
-    private final DataSource dataSource;
+    //    private final DataSource dataSource;
+    private final UserDetailsServiceImpl userDetailsService;
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
@@ -63,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .requestMatchers(req -> req.mvcMatchers("/authorize/**", "/admin/**", "/api/**"))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .exceptionHandling(exp ->exp
+                .exceptionHandling(exp -> exp
                         .authenticationEntryPoint(securityProblemSupport)
                         .accessDeniedHandler(securityProblemSupport)
                 )
@@ -85,14 +87,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .jdbcAuthentication()
-//                .withDefaultSchema() // delete after added h2
-                .dataSource(dataSource)
+//                .jdbcAuthentication()
+////                .withDefaultSchema() // delete after added h2
+//                .dataSource(dataSource)
+//
+////                .inMemoryAuthentication()
+//                .usersByUsernameQuery("select username, password, enable from uaa_users where username = ?")
+//                .authoritiesByUsernameQuery("select username, authority from uaa_authorities where username = ?")
+//
 
-//                .inMemoryAuthentication()
+                .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder())
-                .usersByUsernameQuery("select username, password, enable from uaa_users where username = ?")
-                .authoritiesByUsernameQuery("select username, authority from uaa_authorities where username = ?")
         ;
 //                .withUser("user")
 ////                .password(passwordEncoder().encode("12345678"))
