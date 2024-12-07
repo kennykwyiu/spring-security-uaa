@@ -1,10 +1,5 @@
 logging:
-  level:
-    com:
-      kenny: DEBUG
-    org:
-      springframework:
-        security: DEBUG
+
   pattern:
     console: '%clr(%d{E HH:mm:ss.SSS}){blue} %clr(%-5p) %clr(${PID}){faint} %clr(---){faint}
               %clr([%8.15t]){cyan} %clr(%-40.40logger{0}){blue} %clr(:){red} %clr(%m){faint}%n'
@@ -12,7 +7,7 @@ server:
   error:
     whitelabel:
       enabled: true
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
     encoding:
       charset: UTF-8
@@ -22,13 +17,12 @@ spring:
   application:
     name: uaa
   messages:
-    basename: message
+    always-use-message-format: false
+    basename: messages
     encoding: UTF-8
-#  security:
-#    user:
-#      name: user
-#      password: 12345678
-#      roles: USER,ADMIN
-  mvc:
-    locale: UTF-8
-    locale-resolver: fixed
+    fallback-to-system-locale: true
+    use-code-as-default-message: false
+  datasource:
+    initialization-mode: embedded
+  profiles:
+    active: prod
