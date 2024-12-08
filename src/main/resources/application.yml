@@ -24,5 +24,10 @@ spring:
     use-code-as-default-message: false
   datasource:
     initialization-mode: embedded
-  profiles:
-    active: prod
+
+
+  profiles: prod
+kenny:
+  jwt:
+    access-token-expire-time: 600000
+    refresh-token-expire-time: 2592000000
