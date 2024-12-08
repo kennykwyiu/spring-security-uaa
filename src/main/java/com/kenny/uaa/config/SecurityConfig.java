@@ -1,25 +1,28 @@
 package com.kenny.uaa.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenny.uaa.security.auth.ldap.LDAPMultiAuthenticationProvider;
+import com.kenny.uaa.security.auth.ldap.LDAPUserRepo;
 import com.kenny.uaa.security.filter.RestAuthenticationFilter;
+import com.kenny.uaa.security.jwt.JwtFilter;
+import com.kenny.uaa.security.userdetails.UserDetailsPasswordServiceImpl;
 import com.kenny.uaa.security.userdetails.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
@@ -30,7 +33,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
-import javax.sql.DataSource;
 import java.util.Map;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -45,6 +47,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final SecurityProblemSupport securityProblemSupport;
     //    private final DataSource dataSource;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsPasswordServiceImpl userDetailsPasswordService;
+    private final LDAPUserRepo ldapUserRepo;
+    private final JwtFilter jwtFilter;
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
@@ -76,6 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 //                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
                 .csrf(csrf -> csrf.disable())
 
@@ -86,7 +92,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
+        auth.authenticationProvider(ldapMultiAuthenticationProvider());
+        auth.authenticationProvider(daoAuthenticationProvider());
+
+
 //                .jdbcAuthentication()
 ////                .withDefaultSchema() // delete after added h2
 //                .dataSource(dataSource)
@@ -96,9 +105,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .authoritiesByUsernameQuery("select username, authority from uaa_authorities where username = ?")
 //
 
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
-        ;
+//                .userDetailsService(userDetailsService)
+//                .passwordEncoder(passwordEncoder())
+//        ;
 //                .withUser("user")
 ////                .password(passwordEncoder().encode("12345678"))
 //                .password("{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S")
