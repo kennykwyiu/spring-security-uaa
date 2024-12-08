@@ -110,6 +110,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .roles("USER");
     }
 
+    @Bean
+    LDAPMultiAuthenticationProvider ldapMultiAuthenticationProvider() {
+        return new LDAPMultiAuthenticationProvider(ldapUserRepo);
+    }
+
+    @Bean
+    DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider
+                .setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider
+                .setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsPasswordService(userDetailsPasswordService);
+        return daoAuthenticationProvider;
+    }
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web
