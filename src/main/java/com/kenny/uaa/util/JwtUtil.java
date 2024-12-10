@@ -24,7 +24,32 @@ public class JwtUtil {
     // Key for signing Refresh Token
     public static final Key refreshKey = Jwts.SIG.HS512.key().build();
 
-    
+    private final AppProperties appProperties;
+
+    public String createAccessToken(UserDetails userDetails) {
+        return createJWTToken(userDetails,
+                appProperties.getJwt().getAccessTokenExpireTime(),
+                signKey);
+    }
+
+    public String createJWTToken(UserDetails userDetails,
+                                 long timeToExpire,
+                                 Key key) {
+        long now = System.currentTimeMillis();
+        return Jwts
+                .builder()
+                .id("kenny")
+                .subject(userDetails.getUsername())
+                .claim("authorities",
+                        userDetails.getAuthorities().stream()
+                                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                                .collect(Collectors.toList()))
+                .expiration(new Date(now + timeToExpire))
+                .issuedAt(new Date(now))
+                .signWith(key)
+                .compact();
+    }
+
 }
 
 
