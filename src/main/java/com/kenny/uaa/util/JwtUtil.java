@@ -82,6 +82,33 @@ public class JwtUtil {
         }
     }
 
+    public boolean validateAccessToken(String jwtToken) {
+        return validateToken(jwtToken, signKey, true);
+    }
+    public boolean validateAccessTokenWithoutExpiration(String jwtToken) {
+        return validateToken(jwtToken, signKey, false);
+    }
+
+    public boolean validateRefreshToken(String jwtToken) {
+        return validateToken(jwtToken, refreshKey, true);
+    }
+
+    private boolean validateToken(String jwtToken, Key key, boolean isExpiredInvalid) {
+        try {
+            Jwts.parser()
+                    .verifyWith((SecretKey) key)
+                    .build()
+                    .parseSignedClaims(jwtToken)
+                    .getPayload();
+            return true;
+        } catch (ExpiredJwtException | SignatureException | MalformedKeyException | UnsupportedJwtException |
+                 IllegalArgumentException e) {
+            if (e instanceof ExpiredJwtException) {
+                return !isExpiredInvalid;
+            }
+            return false;
+        }
+    }
 }
 
 
