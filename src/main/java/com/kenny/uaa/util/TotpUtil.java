@@ -58,4 +58,10 @@ public class TotpUtil {
         return new SecretKeySpec(Base64.getDecoder().decode(strKey), totp.getAlgorithm());
     }
 
+    public boolean verifyTotp(Key key, String code) throws InvalidKeyException {
+        Instant now = Instant.now();
+        return code.equals(createTotp(key, now));
+    }
+
+
 }
