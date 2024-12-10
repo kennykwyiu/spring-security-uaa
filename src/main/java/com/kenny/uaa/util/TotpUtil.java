@@ -64,4 +64,23 @@ public class TotpUtil {
     }
 
 
+    public String encodeKeyToString() {
+        return encodeKeyToString(generateKey());
+    }
+
+    private Key generateKey() {
+        return keyGenerator.generateKey();
+    }
+
+    private String encodeKeyToString(Key key) {
+        return Base64.getEncoder().encodeToString(key.getEncoded());
+    }
+
+    public long getTimeStepInLong() {
+        return TIME_STEP;
+    }
+
+    public Duration getTimeStep() {
+        return totp.getTimeStep();
+    }
 }
