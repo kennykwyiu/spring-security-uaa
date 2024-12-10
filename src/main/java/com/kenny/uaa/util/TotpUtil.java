@@ -41,4 +41,21 @@ public class TotpUtil {
         }
     }
 
+    public String createTotp(Key key, Instant time) throws InvalidKeyException {
+        int password = totp.generateOneTimePassword(key, time);
+        String format = "%0" + PASSWORD_LENGTH + "d";
+        return String.format(format, password);
+    }
+
+    public Optional<String> createTotp(String strKey) {
+        try {
+            return Optional.of(createTotp(decodeKeyFromString(strKey), Instant.now()));
+        } catch (InvalidKeyException e) {
+            return Optional.empty();
+        }
+    }
+    public Key decodeKeyFromString(String strKey) {
+        return new SecretKeySpec(Base64.getDecoder().decode(strKey), totp.getAlgorithm());
+    }
+
 }
