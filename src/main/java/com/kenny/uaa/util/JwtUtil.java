@@ -50,6 +50,38 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String createRefreshToken(UserDetails userDetails) {
+        return createJWTToken(userDetails,
+                appProperties.getJwt().getRefreshTokenExpireTime(),
+                refreshKey);
+    }
+
+    public String createAccessTokenWithRefreshToken(String token) {
+        return parseClaims(token, refreshKey)
+                .map(claims -> Jwts
+                        .builder()
+                        .claims(claims)
+                        .expiration(new Date(System.currentTimeMillis() + appProperties.getJwt().getAccessTokenExpireTime()))
+                        .issuedAt(new Date())
+                        .signWith(signKey)
+                        .compact()
+                ).orElseThrow(() -> new AccessDeniedException("Access denied"));
+
+    }
+
+    public Optional<Claims> parseClaims(String jwtToken, Key key) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith((SecretKey) key)
+                    .build()
+                    .parseSignedClaims(jwtToken)
+                    .getPayload();
+            return Optional.of(claims);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
 }
 
 
