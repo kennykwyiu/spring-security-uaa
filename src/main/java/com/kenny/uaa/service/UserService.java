@@ -33,6 +33,17 @@ public class UserService {
                 .orElseThrow(() -> new BadCredentialsException("Username or password incorrect"));
     }
 
+    public boolean isUsernameExisted(String username) {
+        return userRepo.countByUsername(username) > 0;
+    }
+
+    public boolean isEmailExisted(String email) {
+        return userRepo.countByEmail(email) > 0;
+    }
+
+    public boolean isMobileExisted(String mobile) {
+        return userRepo.countByMobile(mobile) > 0;
+    }
 
     @Transactional
     public User register(User user) {
