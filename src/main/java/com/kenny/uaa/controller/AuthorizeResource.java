@@ -1,6 +1,14 @@
 package com.kenny.uaa.controller;
 
+import com.kenny.uaa.domain.Auth;
+import com.kenny.uaa.domain.User;
+import com.kenny.uaa.domain.dto.LoginDto;
 import com.kenny.uaa.domain.dto.UserDto;
+import com.kenny.uaa.exception.DuplicateProblem;
+import com.kenny.uaa.service.UserService;
+import com.kenny.uaa.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +20,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/authorize")
 public class AuthorizeResource {
+
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+
     @GetMapping(value = "greeting")
     public String sayHello() {
         return "hello world";
