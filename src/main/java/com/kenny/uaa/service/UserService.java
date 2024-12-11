@@ -23,5 +23,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    public Auth login(String username, String password) throws AuthenticationException {
+        return userRepo.findOptionalByUsername(username)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .map(user -> new Auth(
+                        jwtUtil.createAccessToken(user),
+                        jwtUtil.createRefreshToken(user)
+                ))
+                .orElseThrow(() -> new BadCredentialsException("Username or password incorrect"));
+    }
+
 
 }
