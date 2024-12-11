@@ -125,6 +125,21 @@ public class User implements UserDetails, Serializable {
     @Column(length = 254, unique = true, nullable = false)
     private String email;
 
+    @Builder.Default
+    @NotNull
+    @Column(name = "using_mfa", nullable = false)
+    private boolean usingMfa = false;
+
+    /**
+     * mfa key
+     */
+    @JsonIgnore
+    @Getter
+    @Setter
+    @NotNull
+    @Column(name = "mfa_key", nullable = false)
+    private String mfaKey;
+
     /**
      * Role list, using Set to ensure uniqueness
      */
