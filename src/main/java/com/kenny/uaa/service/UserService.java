@@ -34,4 +34,14 @@ public class UserService {
     }
 
 
+    @Transactional
+    public User register(User user) {
+        return roleRepo.findOptionalByAuthority(Constants.ROLE_USER)
+                .map(role -> {
+                    User userToSave = user.withAuthorities(Set.of(role))
+                            .withPassword(passwordEncoder.encode(user.getPassword()));
+                    return userRepo.save(userToSave);
+                })
+                .orElseThrow();
+    }
 }
