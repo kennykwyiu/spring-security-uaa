@@ -62,4 +62,24 @@ public class AuthorizeResource {
     public void raiseProblem() {
         throw new AccessDeniedException("You do not have the privilege");
     }
+
+    @PostMapping("/token")
+    public Auth login(@Valid @RequestBody LoginDto loginDto) {
+        return userService.login(loginDto.getUsername(),
+                loginDto.getPassword());
+    }
+
+    @PostMapping("/token/refresh")
+    public Auth refreshToken(@RequestHeader(name = "Authorization") String authorization,
+                             @RequestParam String refreshToken) throws AccessDeniedException {
+        String PREFIX = "Bearer ";
+        String accessToken = authorization.replace(PREFIX, "");
+        if (jwtUtil.validateRefreshToken(refreshToken) &&
+                jwtUtil.validateAccessTokenWithoutExpiration(accessToken)) {
+            return new Auth(jwtUtil.createAccessTokenWithRefreshToken(refreshToken), refreshToken);
+        }
+        throw new AccessDeniedException("Access denied");
+    }
+
+
 }
