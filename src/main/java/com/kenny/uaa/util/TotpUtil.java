@@ -68,11 +68,11 @@ public class TotpUtil {
         return encodeKeyToString(generateKey());
     }
 
-    private Key generateKey() {
+    Key generateKey() {
         return keyGenerator.generateKey();
     }
 
-    private String encodeKeyToString(Key key) {
+    String encodeKeyToString(Key key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 
