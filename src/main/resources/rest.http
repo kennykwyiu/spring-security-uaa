@@ -59,3 +59,37 @@ Authorization: Basic zhaoliu 123
 ###
 GET {{host}}/api/principal HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJrZW5ueSIsInN1YiI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImlhdCI6MTczMzY3MTUzOCwiZXhwIjoxNzMzNjcxNTk4fQ.fjYTjh5qpHcOhecAHUD7ecrl-uiOLxG2RzPrVRognpTnNGLzxJVzjD7pSLn989SHqPcrL0zfmQtX9pM1mMIU5w
+
+
+###
+# @name userLogin
+
+POST {{host}}/authorize/token
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "12345678"
+}
+
+> {% client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+####
+
+POST {{host}}/authorize/token/refresh?refreshToken={{refreshToken}}
+Authorization: Bearer {{accessToken}}
+
+#####
+POST {{host}}/authorize/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "bettywong",
+  "name": "betty wong",
+  "email": "bettywong@local.dev",
+  "mobile": "13912341232",
+  "password": "Abcd123$",
+  "matchingPassword": "Abcd123$"
+}
