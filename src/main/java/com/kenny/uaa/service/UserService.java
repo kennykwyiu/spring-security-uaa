@@ -6,6 +6,7 @@ import com.kenny.uaa.repository.RoleRepo;
 import com.kenny.uaa.repository.UserRepo;
 import com.kenny.uaa.util.Constants;
 import com.kenny.uaa.util.JwtUtil;
+import com.kenny.uaa.util.TotpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -22,6 +24,7 @@ public class UserService {
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final TotpUtil totpUtil;
 
     public Auth login(String username, String password) throws AuthenticationException {
         return userRepo.findOptionalByUsername(username)
@@ -50,9 +53,15 @@ public class UserService {
         return roleRepo.findOptionalByAuthority(Constants.ROLE_USER)
                 .map(role -> {
                     User userToSave = user.withAuthorities(Set.of(role))
-                            .withPassword(passwordEncoder.encode(user.getPassword()));
+                            .withPassword(passwordEncoder.encode(user.getPassword()))
+                            .withMfaKey(totpUtil.encodeKeyToString());
                     return userRepo.save(userToSave);
                 })
                 .orElseThrow();
+    }
+
+    public Optional<User> findOptionalByUsernameAndPassword(String username, String password) {
+        return userRepo.findOptionalByUsername(username)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()));
     }
 }
