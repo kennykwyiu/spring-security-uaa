@@ -53,3 +53,9 @@ GET {{host}}/api/principal HTTP/1.1
 Authorization: Basic user 12345678
 
 ###
+GET {{host}}/api/principal HTTP/1.1
+Authorization: Basic zhaoliu 123
+
+###
+GET {{host}}/api/principal HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJrZW5ueSIsInN1YiI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImlhdCI6MTczMzY3MTUzOCwiZXhwIjoxNzMzNjcxNTk4fQ.fjYTjh5qpHcOhecAHUD7ecrl-uiOLxG2RzPrVRognpTnNGLzxJVzjD7pSLn989SHqPcrL0zfmQtX9pM1mMIU5w
