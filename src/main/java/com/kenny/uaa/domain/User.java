@@ -126,6 +126,8 @@ public class User implements UserDetails, Serializable {
     private String email;
 
     @Builder.Default
+    @Getter
+    @Setter
     @NotNull
     @Column(name = "using_mfa", nullable = false)
     private boolean usingMfa = false;
