@@ -1,7 +1,7 @@
 -- Insert users
-INSERT INTO uaa_users(id, username, `name`, mobile, password_hash, enabled, account_non_expired, account_non_locked, credentials_non_expired, email) VALUES
-                                                   (1,'user', 'mary li', '14765432111', '{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S', 1, 1, 1, 1, 'maryli@local.dev'),
-                                                   (2,'kenny', 'kenken', '13455789101', '{SHA-1}{kHuRu6jV3+cBx9FDxGMln1bNI2y4DGo/BTXSxk1TD+o=}0dba8fb0fb9cf82a9e0c94f4063cf0def077b84d', 1, 1, 1, 1, 'kenny@local.dev');
+INSERT INTO uaa_users(id, username, `name`, mobile, password_hash, enabled, account_non_expired, account_non_locked, credentials_non_expired, using_mfa, mfa_key, email) VALUES
+                                                   (1,'user', 'mary li', '14765432111', '{bcrypt}$2a$10$yxeOZOvhc16NnAbIq3bHIe8Ja.rFPhAcDYhTEx0i1Nc.sIkWXfK6S', 1, 1, 1, 1, true, '8Uy+OZUaZur9WwcP0z+YxNy+QdsWbtfqA70GQMxMfLeisTd8Na6C7DkjhJWLrGyEyBsnEmmkza6iorytQRh7OQ==', 'maryli@local.dev'),
+                                                   (2,'kenny', 'kenken', '13455789101', '{SHA-1}{kHuRu6jV3+cBx9FDxGMln1bNI2y4DGo/BTXSxk1TD+o=}0dba8fb0fb9cf82a9e0c94f4063cf0def077b84d', 1, 1, 1, 1, false, '8Uy+OZUaZur9WwcP0z+YxNy+QdsWbtfqA70GQMxMfLeisTd8Na6C7DkjhJWLrGyEyBsnEmmkza6iorytQRh7OQ==', 'kenny@local.dev');
 insert into uaa_roles(id, role_name) values
                                           (1, 'ROLE_USER'),
                                           (2, 'ROLE_ADMIN');
