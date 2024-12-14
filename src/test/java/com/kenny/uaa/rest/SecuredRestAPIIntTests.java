@@ -9,8 +9,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.config.http.MatcherType.mvc;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -33,6 +35,13 @@ public class SecuredRestAPIIntTests {
         mockMvc.perform(
                 get("/api/greeting")
         )
+                .andExpect(status().isOk());
+    }
+    @WithMockUser(username = "kenny", roles = {"USER"})
+    @Test
+    public void givenRoleUserOrAdmin_thenAccessSuccess() throws Exception {
+        mockMvc.perform(get("/api/users/{username}", "kenny"))
+                .andDo(print())
                 .andExpect(status().isOk());
     }
 }
