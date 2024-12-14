@@ -88,7 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/authorize/**").permitAll()
                         .antMatchers("/admin/**").hasRole("ADMIN")
 //                        .antMatchers("/api/**").access("hasRole('USER') or hasRole('ADMIN')")
-                        .antMatchers("/api/users/{username}").access("hasRole('ADMIN') or authentication.name.equals(#username)")
+                        .antMatchers("/api/users/{username}").access("hasRole('ADMIN') or @userService.isValidUser(authentication, #username)")
                         .anyRequest().authenticated())
 //                .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
