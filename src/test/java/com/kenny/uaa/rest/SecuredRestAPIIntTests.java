@@ -37,10 +37,10 @@ public class SecuredRestAPIIntTests {
         )
                 .andExpect(status().isOk());
     }
-    @WithMockUser(username = "kenny", roles = {"USER"})
+    @WithMockUser(username = "kenny", roles = {"ADMIN"})
     @Test
     public void givenRoleUserOrAdmin_thenAccessSuccess() throws Exception {
-        mockMvc.perform(get("/api/users/{username}", "kenny"))
+        mockMvc.perform(get("/api/users/{username}", "user"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
