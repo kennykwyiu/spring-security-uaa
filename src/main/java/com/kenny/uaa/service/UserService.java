@@ -48,6 +48,10 @@ public class UserService {
         return userRepo.countByMobile(mobile) > 0;
     }
 
+    public boolean isValidUser(Authentication authentication, String username) {
+        return authentication.getName().equals(username);
+    }
+
     @Transactional
     public User register(User user) {
         return roleRepo.findOptionalByAuthority(Constants.ROLE_USER)
