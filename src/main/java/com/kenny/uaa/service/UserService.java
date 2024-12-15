@@ -77,4 +77,9 @@ public class UserService {
                 .orElse(user);
     }
 
+    public Optional<String> createTotp(String key) {
+        return totpUtil.createTotp(key);
+    }
+
+
 }
