@@ -9,7 +9,9 @@ import com.kenny.uaa.util.JwtUtil;
 import com.kenny.uaa.util.TotpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -68,4 +70,11 @@ public class UserService {
         return userRepo.findOptionalByUsername(username)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()));
     }
+
+    public UserDetails updatePassword(User user, String newPassword) {
+        return userRepo.findOptionalByUsername(user.getUsername())
+                .map(u -> (UserDetails) userRepo.save(u.withPassword(newPassword)))
+                .orElse(user);
+    }
+
 }
