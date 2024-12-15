@@ -18,6 +18,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -89,6 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 .mvcMatchers( "/authorize/**").permitAll()
                                 .mvcMatchers("/admin/**").hasRole(Constants.AUTHORITY_STAFF)
 //                        .antMatchers("/api/**").access("hasRole('USER') or hasRole('ADMIN')")
+                                .mvcMatchers("/api/users/manager").hasRole(Constants.AUTHORITY_MANAGER)
                                 .mvcMatchers("/api/users/by-email/{email}").hasRole(Constants.AUTHORITY_USER)
                                 .mvcMatchers("/api/users/{username}/**").access("hasRole('" + Constants.AUTHORITY_ADMIN + "') or @userService.isValidUser(authentication, #username)")
                                 .mvcMatchers("/api/**").authenticated()
@@ -235,4 +238,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
+
+     @Bean
+    public RoleHierarchy roleHierarchy() {
+         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+         StringBuilder stringBuilder = new StringBuilder();
+         stringBuilder.append(Constants.ROLE_ADMIN)
+                 .append(" > ")
+                 .append(Constants.ROLE_MANAGER)
+                 .append("\n")
+                 .append(Constants.ROLE_MANAGER)
+                 .append(" > ")
+                 .append(Constants.ROLE_USER);
+         roleHierarchy.setHierarchy(stringBuilder.toString());
+//         roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\nROLE_MANAGER > ROLE_USER");
+         return roleHierarchy;
+     }
 }
