@@ -7,6 +7,7 @@ import com.kenny.uaa.security.filter.RestAuthenticationFilter;
 import com.kenny.uaa.security.jwt.JwtFilter;
 import com.kenny.uaa.security.userdetails.UserDetailsPasswordServiceImpl;
 import com.kenny.uaa.security.userdetails.UserDetailsServiceImpl;
+import com.kenny.uaa.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -85,11 +86,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 //            .authorizeRequests(req -> req.antMatchers("/api/**").authenticated())
                 .authorizeRequests(req -> req
-                        .antMatchers("/authorize/**").permitAll()
-                        .antMatchers("/admin/**").hasRole("ADMIN")
+                                .mvcMatchers( "/authorize/**").permitAll()
+                                .mvcMatchers("/admin/**").hasRole(Constants.AUTHORITY_STAFF)
 //                        .antMatchers("/api/**").access("hasRole('USER') or hasRole('ADMIN')")
-                        .antMatchers("/api/users/{username}").access("hasRole('ADMIN') or @userService.isValidUser(authentication, #username)")
-                        .anyRequest().authenticated())
+                                .mvcMatchers("/api/users/by-email/{email}").hasRole(Constants.AUTHORITY_USER)
+                                .mvcMatchers("/api/users/{username}/**").access("hasRole('" + Constants.AUTHORITY_ADMIN + "') or @userService.isValidUser(authentication, #username)")
+                                .mvcMatchers("/api/**").authenticated()
+                                .anyRequest().denyAll()
+                )
+//                        .anyRequest().authenticated())
 //                .addFilterAt(getRestAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 //                .csrf(csrf -> csrf.ignoringAntMatchers("/authorize/**", "/admin/**", "/api/**"))
