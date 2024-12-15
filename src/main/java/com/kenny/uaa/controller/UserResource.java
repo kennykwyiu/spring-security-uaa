@@ -52,6 +52,10 @@ public class UserResource {
     public String getCurrentUsername(@PathVariable String username) {
         return "hello, " + username;
     }
+    @GetMapping("/users/manager")
+    public String getManagerResource() {
+        return "hello, manager";
+    }
 
 //    @PreAuthorize("hasRole('USER')")
     @PostAuthorize("authentication.name.equals(returnObject.username)")
