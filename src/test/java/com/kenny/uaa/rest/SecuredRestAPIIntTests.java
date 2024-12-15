@@ -45,6 +45,14 @@ public class SecuredRestAPIIntTests {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(username = "user", roles = {"ADMIN"})
+    @Test
+    public void givenRoleUserOrAdmin_thenAccessManagerResource() throws Exception {
+        mockMvc.perform(get("/api/users/manager", "user"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
     @WithMockUser(username = "kenny", roles = {"USER"})
     @Test
     public void givenUserRole_whenQueryUserByEmail_shouldSuccess() throws Exception {
