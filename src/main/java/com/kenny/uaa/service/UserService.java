@@ -58,7 +58,7 @@ public class UserService {
     public User register(User user) {
         return roleRepo.findOptionalByAuthority(Constants.ROLE_USER)
                 .map(role -> {
-                    User userToSave = user.withAuthorities(Set.of(role))
+                    User userToSave = user.withRoles(Set.of(role))
                             .withPassword(passwordEncoder.encode(user.getPassword()))
                             .withMfaKey(totpUtil.encodeKeyToString());
                     return userRepo.save(userToSave);
