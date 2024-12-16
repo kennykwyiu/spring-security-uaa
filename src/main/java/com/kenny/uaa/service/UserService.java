@@ -8,6 +8,7 @@ import com.kenny.uaa.util.Constants;
 import com.kenny.uaa.util.JwtUtil;
 import com.kenny.uaa.util.TotpUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -83,5 +84,13 @@ public class UserService {
 
     public Optional<User> findOptionalByEmail(String email) {
         return userRepo.findOptionalByEmail(email);
+    }
+
+    @Transactional
+    @PreAuthorize("authentication.name == #user.username or " +
+            "hasAnyAuthority('" + Constants.ROLE_ADMIN + "' , '" + Constants.AUTHORITY_USER_UPDATE +
+            "')")
+    public User saveUser(User user) {
+        return userRepo.save(user);
     }
 }
