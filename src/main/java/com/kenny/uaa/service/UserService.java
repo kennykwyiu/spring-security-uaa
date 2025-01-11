@@ -1,5 +1,6 @@
 package com.kenny.uaa.service;
 
+import com.kenny.uaa.annotation.RoleAdminOrSelfWithUserParam;
 import com.kenny.uaa.domain.Auth;
 import com.kenny.uaa.domain.User;
 import com.kenny.uaa.repository.RoleRepo;
@@ -87,9 +88,7 @@ public class UserService {
     }
 
     @Transactional
-    @PreAuthorize("authentication.name == #user.username or " +
-            "hasAnyAuthority('" + Constants.ROLE_ADMIN + "' , '" + Constants.AUTHORITY_USER_UPDATE +
-            "')")
+    @RoleAdminOrSelfWithUserParam
     public User saveUser(User user) {
         return userRepo.save(user);
     }
