@@ -10,6 +10,7 @@ import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -28,5 +29,14 @@ public class UserCacheService {
         }
         return mfaId;
     }
+
+    public Optional<User> retrieveUser(String mfaId) {
+        RMapCache<String, User> cache = redisson.getMapCache(Constants.CACHE_MFA);
+        if (cache.containsKey(mfaId)) {
+            return Optional.of(cache.get(mfaId));
+        }
+        return Optional.empty();
+    }
+
 
 }
