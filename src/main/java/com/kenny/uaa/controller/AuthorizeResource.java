@@ -126,6 +126,13 @@ public class AuthorizeResource {
 
     }
 
+    @PostMapping("/totp")
+    public Auth verifyTotp(@Valid @RequestBody VerifyTotpDto verifyTotpDto) {
+        return userCacheService.verifyTotp(verifyTotpDto.getMfaId(), verifyTotpDto.getCode())
+                .map(user -> userService.login(user.getUsername(), user.getPassword()))
+                .orElseThrow(() -> new InvalidTotpProblem());
+    }
+
     @PostMapping("/token/refresh")
     public Auth refreshToken(@RequestHeader(name = "Authorization") String authorization,
                              @RequestParam String refreshToken) throws AccessDeniedException {
