@@ -14,7 +14,5 @@ public class UserDetailsPasswordServiceImpl implements UserDetailsPasswordServic
         return userRepo.findOptionalByUsername(userDetails.getUsername())
                 .map(user -> (UserDetails) userRepo.save(user.withPassword(newPassword)))
                 .orElse(userDetails);
-
-
     }
 }

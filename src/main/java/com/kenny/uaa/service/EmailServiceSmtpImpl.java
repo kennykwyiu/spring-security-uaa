@@ -18,6 +18,7 @@ public class EmailServiceSmtpImpl implements EmailService {
         message.setFrom("service@kenny.com");
         message.setSubject("kenny.com Practical Spring Security Login Verification Code");
         message.setText("Your verification code is: " + msg);
-        emailSender.send(message);
+        emailSender
+                .send(message);
     }
 }
