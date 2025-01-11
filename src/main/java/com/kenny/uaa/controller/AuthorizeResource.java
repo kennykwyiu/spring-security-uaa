@@ -1,15 +1,25 @@
 package com.kenny.uaa.controller;
 
 import com.kenny.uaa.domain.Auth;
+import com.kenny.uaa.domain.MfaType;
 import com.kenny.uaa.domain.User;
 import com.kenny.uaa.domain.dto.LoginDto;
+import com.kenny.uaa.domain.dto.SendTotpDto;
 import com.kenny.uaa.domain.dto.UserDto;
-import com.kenny.uaa.exception.DuplicateProblem;
+import com.kenny.uaa.domain.dto.VerifyTotpDto;
+import com.kenny.uaa.exception.*;
+import com.kenny.uaa.service.EmailService;
+import com.kenny.uaa.service.SmsService;
+import com.kenny.uaa.service.UserCacheService;
 import com.kenny.uaa.service.UserService;
 import com.kenny.uaa.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,7 +32,10 @@ import java.util.Optional;
 public class AuthorizeResource {
 
     private final UserService userService;
+    private final UserCacheService userCacheService;
     private final JwtUtil jwtUtil;
+    private final SmsService smsService;
+    private final EmailService emailService;
 
     @GetMapping(value = "greeting")
     public String sayHello() {
@@ -55,7 +68,6 @@ public class AuthorizeResource {
         userService.register(user);
 
 
-
     }
 
     @GetMapping("/problem")
@@ -64,10 +76,38 @@ public class AuthorizeResource {
     }
 
     @PostMapping("/token")
-    public Auth login(@Valid @RequestBody LoginDto loginDto) {
-        return userService.login(loginDto.getUsername(),
-                loginDto.getPassword());
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
+        return userService.findOptionalByUsernameAndPassword(loginDto.getUsername(),
+                        loginDto.getPassword()).map(
+                        user -> {
+                            //1. Upgrade password encoding
+                            userService.updatePassword(user, loginDto.getPassword());
+                            //2. Verification
+                            if (!user.isEnabled()) {
+                                throw new UserNotEnabledProblem();
+                            }
+                            if (!user.isAccountNonLocked()) {
+                                throw new UserAccountLockedProblem();
+                            }
+                            if (!user.isAccountNonExpired()) {
+                                throw new UserAccountExpiredProblem();
+                            }
+                            //3. Check if usingMfa is false, then directly return Token
+                            if (!user.isUsingMfa()) {
+                                return ResponseEntity.ok(userService.login(loginDto.getUsername(),
+                                        loginDto.getPassword()));
+                            }
+                            //4. use mfa
+                            String mfaId = userCacheService.cache(user);
+                            //5. "X-Authenticate": "mfa", "realm=" + mfaId
+                            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                    .header("X-Authenticate", "mfa", "realm=" + mfaId)
+                                    .build();
+                        }
+                )
+                .orElseThrow(() -> new BadCredentialsException("Username or password incorrect!"));
     }
+
 
     @PostMapping("/token/refresh")
     public Auth refreshToken(@RequestHeader(name = "Authorization") String authorization,
