@@ -108,6 +108,23 @@ public class AuthorizeResource {
                 .orElseThrow(() -> new BadCredentialsException("Username or password incorrect!"));
     }
 
+    @PutMapping("/totp")
+    public void sendTotp(@Valid @RequestBody SendTotpDto sendTotpDto) {
+        userCacheService.retrieveUser(sendTotpDto.getMfaId())
+                .flatMap(user -> userService.createTotp(user.getMfaKey())
+                                            .map(totp -> Pair.of(user, totp))
+                         )
+                .ifPresentOrElse(pair -> {
+                    if (sendTotpDto.getMfaType() == MfaType.SMS) {
+                        smsService.send(pair.getFirst().getMobile(), pair.getSecond());
+                    } else {
+                        emailService.send(pair.getFirst().getEmail(), pair.getSecond());
+                    }
+                }, () -> {
+                    throw new InvalidTotpProblem();
+                });
+
+    }
 
     @PostMapping("/token/refresh")
     public Auth refreshToken(@RequestHeader(name = "Authorization") String authorization,
