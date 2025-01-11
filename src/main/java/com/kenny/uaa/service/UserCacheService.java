@@ -10,6 +10,7 @@ import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+import java.security.InvalidKeyException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -38,5 +39,21 @@ public class UserCacheService {
         return Optional.empty();
     }
 
-
+    public Optional<User> verifyTotp(String mfaId, String code) {
+        RMapCache<String, User> cache = redisson.getMapCache(Constants.CACHE_MFA);
+        if (!cache.containsKey(mfaId) || cache.get(mfaId) == null) {
+            return Optional.empty();
+        }
+        User cacheUser = cache.get(mfaId);
+        try {
+            boolean isValid = totpUtil.verifyTotp(totpUtil.decodeKeyFromString(cacheUser.getMfaKey()), code);
+            if (!isValid) {
+                return Optional.empty();
+            }
+            cache.remove(mfaId);
+            return Optional.of(cacheUser);
+        } catch (InvalidKeyException e) {
+            return Optional.empty();
+        }
+    }
 }
